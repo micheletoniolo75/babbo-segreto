@@ -102,6 +102,7 @@ li .nm{flex:1;font-weight:600;overflow-wrap:anywhere}
     <label class="l" for="budgetIn">Budget o nota per tutti (facoltativo)</label>
     <input type="text" id="budgetIn" placeholder="Es. massimo 20 €" maxlength="60">
     <button class="gold big" id="genBtn" disabled>Genera abbinamenti</button>
+    <p class="hint" id="histRow" hidden><span id="histTxt"></span> <button type="button" class="ghost" id="histClear" style="min-height:36px;padding:0 10px;font-size:14px;margin-left:4px">Azzera</button></p>
     <p class="err" id="genErr" role="alert"></p>
   </section>
 
@@ -227,6 +228,9 @@ try{
   else{const o=JSON.parse(localStorage.getItem('babbo-segreto-v1'));if(o&&Array.isArray(o.people))S.people=o.people.map(n=>({n,tel:false})),S.budget=o.budget||''}
 }catch(e){}
 if(!Array.isArray(S.toClose))S.toClose=[];
+if(!Array.isArray(S.hist))S.hist=[]; // ultime estrazioni, la più recente per prima: [{chi regala: destinatario}]
+if(S.prev){if(!S.hist.length)S.hist=[S.prev];delete S.prev} // versione precedente: solo l'ultima
+if(S.pairs&&!S.hist.length)S.hist=[Object.fromEntries(Object.entries(S.pairs).map(([g,v])=>[g,v.r]))];
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -347,6 +351,7 @@ function renderSetup(){
   $('count').textContent=n?`${n} partecipant${n===1?'e':'i'}, ${t} con link personale${n<3?' · ne servono almeno 3':''}`:'Nessun partecipante ancora.';
   $('genBtn').disabled=n<3;
   $('budgetIn').value=S.budget||'';
+  renderHist();
 }
 function linkFor(p){return BASE+'#'+S.pairs[p.n].code}
 const waHref=p=>`https://wa.me/${p.ph||''}?text=${encodeURIComponent(msgFor(p))}`;
@@ -413,15 +418,36 @@ $('bookBtn').addEventListener('click',async()=>{
 });
 
 function rnd(n){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n}
+/* Sorteggio: tra tutti gli abbinamenti in cui nessuno pesca se stesso ne sceglie uno a caso,
+   evitando per quanto possibile i destinatari delle ultime HIST estrazioni.
+   Se non si può evitare tutto, una ripetizione dell'estrazione più recente pesa più di
+   qualsiasi numero di ripetizioni di quelle più vecchie. */
+const HIST=4,W=[1e6,1e4,1e2,1];
+function draw(names,hist){
+  let best=null,bestScore=Infinity;
+  for(let t=0;t<20000;t++){
+    const a=names.slice();
+    for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}
+    if(a.some((r,i)=>r===names[i]))continue;
+    let score=0;
+    hist.forEach((h,k)=>names.forEach((g,i)=>{if(h[g]===a[i])score+=W[k]}));
+    if(score<bestScore){best=a;bestScore=score;if(!score)break}
+  }
+  return Object.fromEntries(names.map((g,i)=>[g,best[i]]));
+}
+function renderHist(){
+  const n=S.hist.length;$('histRow').hidden=!n;
+  $('histTxt').textContent=n===1?"Si evitano gli abbinamenti dell'ultima estrazione.":`Si evitano gli abbinamenti delle ultime ${n} estrazioni.`;
+}
+$('histClear').addEventListener('click',()=>{S.hist=[];save();renderHist()});
 $('genBtn').addEventListener('click',async()=>{
-  // Mescola e chiude in un unico cerchio: nessuno pesca se stesso
-  const a=S.people.map(p=>p.n),L=a.length;
-  for(let i=L-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}
+  const names=S.people.map(p=>p.n),R=draw(names,S.hist),from={};
+  for(const g of names)from[R[g]]=g;
   const b=(S.budget||'').trim(),nt=FIREBASE?{gid:hex(10),k:hex(12)}:null,pairs={};
   // tok: segna l'apertura; th: conversazione anonima tra chi regala e chi riceve
-  a.forEach((g,i)=>pairs[g]={r:a[(i+1)%L],tok:hex(8),th:hex(10)});
-  a.forEach((g,i)=>{const p=pairs[g];p.in=pairs[a[(i-1+L)%L]].th;
-    p.code=encode(nt?{g,r:p.r,b,i:nt.gid,o:p.tok,s:p.th,d:p.in}:{g,r:p.r,b})});
+  for(const g of names)pairs[g]={r:R[g],tok:hex(8),th:hex(10)};
+  for(const g of names){const p=pairs[g];p.in=pairs[from[g]].th;
+    p.code=encode(nt?{g,r:p.r,b,i:nt.gid,o:p.tok,s:p.th,d:p.in}:{g,r:p.r,b})}
   $('genErr').textContent='';
   if(nt){
     const btn=$('genBtn');btn.disabled=true;btn.textContent='Collegamento…';
@@ -433,6 +459,7 @@ $('genBtn').addEventListener('click',async()=>{
       $('genErr').textContent='Non riesco a collegarmi al servizio online. Controlla la connessione e riprova.';return}
     btn.textContent='Genera abbinamenti';
   }
+  S.hist=[R,...S.hist].slice(0,HIST);
   S.pairs=pairs;S.net=nt;S.seen={};S.sent={};save();render();
 });
 
