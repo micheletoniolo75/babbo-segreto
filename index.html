@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Babbo Natale Segreto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Yeseva+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE: festoso ma pulito, da gioco di famiglia
+   IDEA: la busta sigillata con il bigliettino del regalo
+   PICTURE: busta rossa con sigillo dorato che si apre e rivela il nome
+   COLOUR and TYPE: rosso Natale, verde abete, oro; Yeseva One + Nunito
+   LAYOUT: una colonna centrata, una schermata alla volta */
+:root{color-scheme:light dark;
+--bg:light-dark(#b3121f,#5a0910);--card:light-dark(#fff,#1d0c0e);--ink:light-dark(#2a1013,#fbeee8);
+--muted:light-dark(#7a5a5d,#c9a9a6);--pine:light-dark(#0f4d3a,#3fae86);--gold:#f2c14e;--line:light-dark(#efd9d6,#3a2023);
+--soft:light-dark(#fbeeec,#2c1417);--warm:light-dark(#fff4d6,#3a2c0c);--hot:light-dark(#b3121f,#ff7a80)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font:16px/1.55 Nunito,system-ui,sans-serif;overflow-x:clip;
+background-image:radial-gradient(circle at 20% 10%,rgba(255,255,255,.08) 0 2px,transparent 3px),radial-gradient(circle at 70% 40%,rgba(255,255,255,.06) 0 2px,transparent 3px);background-size:90px 90px,130px 130px}
+main{max-width:520px;margin:0 auto;padding:28px 16px 48px}
+h1{font:400 clamp(32px,8vw,44px)/1.05 "Yeseva One",serif;color:#fff;margin:0 0 6px;text-wrap:balance}
+.sub{color:#ffe3df;margin:0 0 22px}
+.card{background:var(--card);border-radius:18px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.card+.card{margin-top:16px}
+h2{font:400 24px/1.15 "Yeseva One",serif;margin:0 0 12px}
+h3{font:800 17px/1.3 Nunito,sans-serif;margin:0 0 4px}
+label.l{display:block;font-weight:600;font-size:14px;margin:14px 0 6px;color:var(--muted)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+input[type=text]{flex:1 1 160px;width:100%;font:16px Nunito,sans-serif;padding:12px 14px;border:2px solid var(--line);border-radius:12px;background:transparent;color:var(--ink);min-height:48px}
+input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+button,.btn{font:800 16px Nunito,sans-serif;min-height:48px;padding:0 18px;border:0;border-radius:12px;cursor:pointer;background:var(--pine);color:#fff;display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+.gold{background:var(--gold);color:#3a2300}
+.ghost{background:transparent;color:var(--muted);border:2px solid var(--line)}
+button:disabled{opacity:.4;cursor:not-allowed}
+.big{width:100%;margin-top:18px;font-size:18px;min-height:56px}
+ul{list-style:none;padding:0;margin:14px 0 0}
+li{display:flex;align-items:center;gap:8px;padding:8px 0 8px 4px;border-bottom:1px solid var(--line)}
+li .nm{flex:1;font-weight:600;overflow-wrap:anywhere}
+.tel{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--muted);min-height:44px;cursor:pointer;white-space:nowrap}
+.tel input{width:22px;height:22px;accent-color:var(--pine)}
+.x{min-height:44px;width:44px;padding:0;background:transparent;color:var(--muted);font-size:24px}
+.hint{font-size:14px;color:var(--muted);margin:10px 0 0}
+.err{color:#d0322f;font-weight:600;font-size:14px;margin:10px 0 0;min-height:1em}
+.err:empty{min-height:0;margin:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:14px}
+.who{min-height:64px;background:var(--soft);color:var(--ink);border:2px solid var(--line);text-align:left;padding:10px 14px;flex-direction:column;align-items:flex-start}
+.who small{font-weight:600;font-size:13px;color:var(--muted)}
+.who.done{border-color:var(--pine)}.who.done small{color:var(--pine)}
+.progress{height:8px;background:var(--line);border-radius:8px;overflow:hidden;margin-top:6px}
+.progress i{display:block;height:100%;background:var(--pine);transition:width .3s}
+.lk{display:block;padding:14px 0;border-bottom:1px solid var(--line)}
+.lk .top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.lk b{overflow-wrap:anywhere}
+.lk .st{font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap}.lk .st.ok{color:var(--pine)}
+.lk .st.open{color:#fff;background:var(--pine);padding:2px 10px;border-radius:20px}
+.lk .row{margin-top:8px}.lk .row>*{flex:1 1 120px;min-height:44px;font-size:15px}
+.url{font:13px/1.4 ui-monospace,monospace;color:var(--muted);overflow-wrap:anywhere;margin-top:6px;user-select:all}
+.center{text-align:center}
+.env{width:100%;max-width:340px;margin:8px auto 0;display:block}
+.flap{transform-origin:50% 0;transform-box:view-box;transition:transform .6s ease}
+.open .flap{transform:scaleY(-1)}
+.note{transition:transform .6s .3s ease}.open .note{transform:translateY(-70px)}
+.seal{transition:opacity .3s}.open .seal{opacity:0}
+.target{font:400 clamp(34px,10vw,48px)/1.05 "Yeseva One",serif;color:var(--hot);margin:6px 0;overflow-wrap:anywhere}
+.budget{display:inline-block;margin-top:6px;padding:6px 14px;border-radius:20px;background:var(--warm);font-weight:600}
+.confirm{margin-top:14px;padding:14px;border-radius:12px;background:var(--warm)}
+.confirm .row{margin-top:10px}.confirm button{flex:1}
+.thread+.thread{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+.msgs{display:flex;flex-direction:column;gap:6px;max-height:300px;min-height:72px;overflow-y:auto;margin-top:10px;padding:10px;background:var(--soft);border-radius:12px}
+.msg{max-width:85%;align-self:flex-start;padding:8px 12px;border-radius:14px 14px 14px 4px;background:var(--card);border:1px solid var(--line);overflow-wrap:anywhere;white-space:pre-wrap}
+.msg.me{align-self:flex-end;border-radius:14px 14px 4px 14px;background:var(--pine);color:#fff;border-color:transparent}
+.msgs .empty{margin:auto;color:var(--muted);font-size:14px;text-align:center}
+.thread form{margin-top:8px}
+[hidden]{display:none!important}
+@media(prefers-reduced-motion:reduce){.flap,.note,.seal,.progress i{transition:none}}
+</style>
+</head>
+<body>
+<main>
+  <h1>Babbo Natale Segreto</h1>
+  <p class="sub" id="sub"></p>
+
+  <!-- 1. Partecipanti -->
+  <section class="card" id="vSetup">
+    <h2>Partecipanti</h2>
+    <form id="addForm" class="row">
+      <input type="text" id="nameIn" placeholder="Nome" autocomplete="off" maxlength="30" aria-label="Nome partecipante">
+      <button type="submit">Aggiungi</button>
+    </form>
+    <p class="err" id="err"></p>
+    <ul id="list"></ul>
+    <p class="hint" id="count"></p>
+    <p class="hint">Spunta <b>Ha il telefono</b> per chi riceverà un link personale. Non spuntare te stesso: la tua busta la apri qui, come chi non ha il telefono.</p>
+    <label class="l" for="budgetIn">Budget o nota per tutti (facoltativo)</label>
+    <input type="text" id="budgetIn" placeholder="Es. massimo 20 €" maxlength="60">
+    <button class="gold big" id="genBtn" disabled>Genera abbinamenti</button>
+    <p class="err" id="genErr" role="alert"></p>
+  </section>
+
+  <!-- 2. Dopo il sorteggio: link + buste locali -->
+  <div id="vPick" hidden>
+    <section class="card" id="linksCard">
+      <h2>Link personali</h2>
+      <p class="hint" style="margin-top:0">Manda a ognuno il suo link. Dentro c'è l'abbinamento cifrato: tu vedi solo lettere e numeri.</p>
+      <div id="netBox" hidden>
+        <div class="progress"><i id="netBar"></i></div>
+        <p class="hint" id="netProg"></p>
+      </div>
+      <div id="links"></div>
+    </section>
+    <section class="card" id="localCard">
+      <h2>Buste su questo telefono</h2>
+      <div class="progress"><i id="bar"></i></div>
+      <p class="hint" id="prog"></p>
+      <div class="grid" id="grid"></div>
+      <div class="confirm" id="reConfirm" hidden>
+        <b id="reText"></b>
+        <div class="row"><button class="ghost" id="reNo">Annulla</button><button id="reYes">Sì, sono io</button></div>
+      </div>
+    </section>
+    <section class="card">
+      <button class="ghost big" style="margin-top:0" id="resetBtn">Ricomincia da capo</button>
+      <div class="confirm" id="resetConfirm" hidden>
+        <b id="resetText"></b>
+        <div class="row"><button class="ghost" id="resetNo">Annulla</button><button id="resetYes">Cancella</button></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 3. Busta (locale o da link) -->
+  <section class="card center" id="vHand" hidden>
+    <h2 id="handTitle"></h2>
+    <p class="hint">Assicurati che nessun altro guardi lo schermo.</p>
+    <svg class="env" viewBox="0 0 300 200" aria-hidden="true" id="envSvg">
+      <rect x="20" y="40" width="260" height="150" rx="10" fill="#8f0e19"/>
+      <g class="note"><rect x="40" y="55" width="220" height="120" rx="6" fill="#fffaf2"/>
+        <rect x="70" y="85" width="160" height="10" rx="5" fill="#efd9d6"/><rect x="90" y="105" width="120" height="10" rx="5" fill="#efd9d6"/></g>
+      <path d="M20 80 L150 150 L280 80 L280 180 Q280 190 270 190 L30 190 Q20 190 20 180 Z" fill="#b3121f"/>
+      <path d="M20 190 L150 120 L280 190" fill="none" stroke="#7a0b15" stroke-width="2"/>
+      <path class="flap" d="M20 50 Q20 40 30 40 L270 40 Q280 40 280 50 L150 125 Z" fill="#c8202e"/>
+      <g class="seal"><circle cx="150" cy="118" r="20" fill="#f2c14e"/><circle cx="150" cy="118" r="14" fill="none" stroke="#c9952a" stroke-width="2"/>
+        <path d="M150 108 l3 7 7 0 -6 4 2 7 -6 -4 -6 4 2 -7 -6 -4 7 0z" fill="#c9952a"/></g>
+    </svg>
+    <button class="gold big" id="revealBtn">Apri la busta</button>
+    <button class="ghost big" id="notMe">Non sono io, indietro</button>
+  </section>
+
+  <!-- 4. Rivelazione -->
+  <section class="card center" id="vShow" hidden>
+    <p class="hint" style="margin:0">Devi fare il regalo a</p>
+    <p class="target" id="target"></p>
+    <span class="budget" id="budgetOut" hidden></span>
+    <p class="hint" id="showHint"></p>
+    <button class="big" id="hideBtn">Ho visto, nascondi</button>
+  </section>
+
+  <!-- 4b. Messaggi anonimi (sotto la rivelazione) -->
+  <section class="card" id="vChat" hidden>
+    <h2>Messaggi anonimi</h2>
+    <p class="hint" style="margin-top:0" id="chatHint"></p>
+    <div class="thread">
+      <h3>Chiedi a <span id="toName"></span></h3>
+      <p class="hint" style="margin:0">Taglia, colori, cosa ha già… Non saprà che sei tu.</p>
+      <div class="msgs" id="m-out" aria-live="polite"></div>
+      <form class="row" id="f-out">
+        <input type="text" id="i-out" maxlength="500" autocomplete="off" placeholder="Scrivi una domanda" aria-label="Messaggio anonimo al destinatario del tuo regalo">
+        <button type="submit">Invia</button>
+      </form>
+      <p class="err" id="e-out"></p>
+    </div>
+    <div class="thread">
+      <h3>Il tuo Babbo Natale segreto</h3>
+      <p class="hint" style="margin:0">Qui ti scrive chi ti farà il regalo. Puoi rispondere senza sapere chi è.</p>
+      <div class="msgs" id="m-in" aria-live="polite"></div>
+      <form class="row" id="f-in">
+        <input type="text" id="i-in" maxlength="500" autocomplete="off" placeholder="Rispondi" aria-label="Risposta al tuo Babbo Natale segreto">
+        <button type="submit">Invia</button>
+      </form>
+      <p class="err" id="e-in"></p>
+    </div>
+  </section>
+
+  <!-- 5. Link non valido -->
+  <section class="card center" id="vBad" hidden>
+    <h2>Link non valido</h2>
+    <p class="hint">Il link è incompleto o è stato copiato male. Chiedi a chi ha organizzato di rimandartelo.</p>
+  </section>
+
+  <!-- 6. Sorteggio annullato -->
+  <section class="card center" id="vClosed" hidden>
+    <h2>Sorteggio annullato</h2>
+    <p class="hint">Chi ha organizzato ha rifatto gli abbinamenti, quindi questo link non vale più. Aspetta il nuovo link.</p>
+  </section>
+</main>
+
+<script>
+{
+/* ---- Configurazione online ----
+   Incolla qui la configurazione del tuo progetto Firebase (vedi SETUP.md).
+   Con null l'app funziona come prima, senza sincronizzazione. */
+const FIREBASE={
+  apiKey:"AIzaSyC_K57vb6WOpegVaypbrug1cca_QTnwYsw",
+  authDomain:"babbo-segreto-f9cef.firebaseapp.com",
+  projectId:"babbo-segreto-f9cef",
+  storageBucket:"babbo-segreto-f9cef.firebasestorage.app",
+  messagingSenderId:"131227017038",
+  appId:"1:131227017038:web:41a3957049f5e33d50481f"
+};
+const SDK='https://www.gstatic.com/firebasejs/13.4.0/';
+// I link puntano all'indirizzo dove è pubblicata la pagina (GitHub Pages, Netlify…)
+const BASE=/^https?:$/.test(location.protocol)?location.origin+location.pathname:'https://claude.ai/artifact/E4xwFbooF4KmwLfLFcQDSP';
+
+const KEY='babbo-segreto-v2';
+let S={people:[],budget:'',pairs:null,seen:{},sent:{},net:null,toClose:[]};
+try{
+  const d=JSON.parse(localStorage.getItem(KEY));
+  if(d&&Array.isArray(d.people))S=Object.assign(S,d);
+  else{const o=JSON.parse(localStorage.getItem('babbo-segreto-v1'));if(o&&Array.isArray(o.people))S.people=o.people.map(n=>({n,tel:false})),S.budget=o.budget||''}
+}catch(e){}
+if(!Array.isArray(S.toClose))S.toClose=[];
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let cur=null; // {giver,target,budget,fromLink,net:{gid,tok,out,in}}
+
+const views=['vSetup','vPick','vHand','vShow','vBad','vClosed'];
+const show=v=>{closeChat();for(const id of views)$(id).hidden=id!==v;window.scrollTo(0,0)};
+const setSub=t=>$('sub').textContent=t;
+
+/* ---- Firebase, caricato solo se configurato ---- */
+let fbP=null;
+function net(){
+  if(!FIREBASE)return Promise.resolve(null);
+  if(!fbP)fbP=(async()=>{
+    const [A,F]=await Promise.all([import(SDK+'firebase-app.js'),import(SDK+'firebase-firestore.js')]);
+    const {emulator,...cfg}=FIREBASE,db=F.getFirestore(A.initializeApp(cfg));
+    if(emulator){const [h,p]=emulator.split(':');F.connectFirestoreEmulator(db,h,+p)}
+    return {db,F};
+  })().catch(e=>{fbP=null;throw e});
+  return fbP;
+}
+const timeout=(p,ms)=>Promise.race([p,new Promise((_,no)=>setTimeout(()=>no(new Error('timeout')),ms))]);
+
+/* ---- cifratura leggera: XOR con chiave casuale ---- */
+function rndBytes(n){const a=new Uint8Array(n);crypto.getRandomValues(a);return a}
+const hex=n=>Array.from(rndBytes(n),b=>b.toString(16).padStart(2,'0')).join('');
+function encode(obj){
+  const data=new TextEncoder().encode(JSON.stringify(obj)),k=rndBytes(6),out=new Uint8Array(k.length+data.length);
+  out.set(k);data.forEach((b,i)=>out[k.length+i]=b^k[i%k.length]^((i*31)&255));
+  let s='';out.forEach(b=>s+=String.fromCharCode(b));
+  return 'c-'+btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function decode(h){
+  let bytes;
+  if(/^b-([0-9a-f]{2})+$/.test(h))bytes=h.slice(2).match(/../g).map(x=>parseInt(x,16)); // link vecchi
+  else if(/^c-[A-Za-z0-9_-]+$/.test(h)){try{bytes=Array.from(atob(h.slice(2).replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0))}catch(e){return null}}
+  else return null;
+  if(bytes.length<8)return null;
+  const k=bytes.slice(0,6),d=bytes.slice(6).map((b,i)=>b^k[i%6]^((i*31)&255));
+  try{const o=JSON.parse(new TextDecoder().decode(new Uint8Array(d)));return o&&o.g&&o.r?o:null}catch(e){return null}
+}
+
+/* ---- chi ha aperto (solo organizzatore) ---- */
+let openedUnsub=null,opened=new Set();
+async function watchOpened(){
+  if(openedUnsub||!S.net)return;
+  const gid=S.net.gid;openedUnsub='pending';
+  try{
+    const n=await net();if(!n)throw 0;
+    const u=n.F.onSnapshot(n.F.collection(n.db,'groups',gid,'opened'),s=>{
+      opened=new Set(s.docs.map(d=>d.id));if(!$('vPick').hidden)renderPick()},()=>{});
+    if(openedUnsub==='pending'&&S.net&&S.net.gid===gid)openedUnsub=u;else u();
+  }catch(e){if(openedUnsub==='pending')openedUnsub=null}
+}
+function stopOpened(){if(typeof openedUnsub==='function')openedUnsub();openedUnsub=null;opened=new Set()}
+const isOpen=p=>!!(S.seen[p.n]||(S.net&&S.pairs[p.n].tok&&opened.has(S.pairs[p.n].tok)));
+async function markOpened(c){
+  if(!c.net)return;const flag='babbo-aperta-'+c.net.tok;
+  if(c.fromLink){try{if(localStorage.getItem(flag))return}catch(e){}}
+  try{const n=await net();if(!n)return;
+    await timeout(n.F.setDoc(n.F.doc(n.db,'groups',c.net.gid,'opened',c.net.tok),{at:n.F.serverTimestamp()}),15000);
+    try{localStorage.setItem(flag,'1')}catch(e){}
+  }catch(e){} // già segnata, o senza rete: pazienza
+}
+// "Ricomincia da capo" chiude il sorteggio online; se non c'è rete riprova al prossimo avvio
+async function flushClose(){
+  if(!S.toClose.length)return;
+  try{const n=await net();if(!n)return;
+    for(const g of S.toClose.slice()){
+      try{await timeout(n.F.updateDoc(n.F.doc(n.db,'groups',g.gid),{closed:true,k:g.k}),15000)}
+      catch(e){if(!/permission|not-found/i.test(e.code||''))continue} // già chiuso o mai creato: togli dalla coda
+      S.toClose=S.toClose.filter(x=>x.gid!==g.gid);save();
+    }
+  }catch(e){}
+}
+
+/* ---- schermate dell'organizzatore ---- */
+function renderSetup(){
+  setSub('Aggiungi i partecipanti, genera gli abbinamenti e manda i link.');
+  $('list').innerHTML=S.people.map((p,i)=>`<li><span class="nm">${esc(p.n)}</span>
+    <label class="tel"><input type="checkbox" data-t="${i}"${p.tel?' checked':''}>Ha il telefono</label>
+    <button class="x" data-i="${i}" aria-label="Rimuovi ${esc(p.n)}">×</button></li>`).join('');
+  const n=S.people.length,t=S.people.filter(p=>p.tel).length;
+  $('count').textContent=n?`${n} partecipant${n===1?'e':'i'}, ${t} con link personale${n<3?' · ne servono almeno 3':''}`:'Nessun partecipante ancora.';
+  $('genBtn').disabled=n<3;
+  $('budgetIn').value=S.budget||'';
+}
+function linkFor(p){return BASE+'#'+S.pairs[p.n].code}
+function msgFor(p){return `Ciao ${p.n}! Ecco la tua busta del Babbo Natale Segreto, aprila quando nessuno ti guarda: ${linkFor(p)}`+(S.net?'\nDentro puoi anche scrivere in anonimo a chi farai il regalo.':'')}
+function renderPick(){
+  setSub('Manda i link a chi ha il telefono. Gli altri toccano il loro nome qui sotto.');
+  const tel=S.people.filter(p=>p.tel),loc=S.people.filter(p=>!p.tel);
+  $('linksCard').hidden=!tel.length;
+  $('netBox').hidden=!S.net;
+  if(S.net){const k=S.people.filter(isOpen).length,n=S.people.length;
+    $('netBar').style.width=k/n*100+'%';
+    $('netProg').textContent=k===n?'Tutti hanno aperto la propria busta.':`${k} di ${n} hanno aperto la busta (si aggiorna da solo)`}
+  $('links').innerHTML=tel.map(p=>{const i=S.people.indexOf(p),u=linkFor(p),o=isOpen(p);
+    const st=o?'<span class="st open">Aperta</span>':`<span class="st${S.sent[p.n]?' ok':''}">${S.sent[p.n]?'Inviato':'Da inviare'}</span>`;
+    return `<div class="lk"><div class="top"><b>Link di ${esc(p.n)}</b>${st}</div>
+      <div class="url">${esc(u)}</div>
+      <div class="row"><button class="ghost" data-copy="${i}">Copia messaggio</button>
+      <a class="btn" data-wa="${i}" href="https://wa.me/?text=${encodeURIComponent(msgFor(p))}" target="_blank" rel="noopener">WhatsApp</a></div></div>`}).join('');
+  $('localCard').hidden=!loc.length;
+  const done=loc.filter(isOpen).length;
+  $('bar').style.width=(loc.length?done/loc.length*100:0)+'%';
+  $('prog').textContent=done===loc.length&&loc.length?'Tutti hanno aperto la propria busta qui.':`${done} di ${loc.length} hanno aperto la busta qui`;
+  $('grid').innerHTML=loc.map(p=>`<button class="who${isOpen(p)?' done':''}" data-i="${S.people.indexOf(p)}">${esc(p.n)}<small>${isOpen(p)?'Già vista':'Da aprire'}</small></button>`).join('');
+  $('reConfirm').hidden=true;$('resetConfirm').hidden=true;
+}
+function render(){
+  const h=location.hash.slice(1);
+  if(h){const o=decode(h);
+    if(o){const nt=o.i?{gid:o.i,tok:o.o,out:o.s,in:o.d}:null;
+      openEnvelope({giver:o.g,target:o.r,budget:o.b||'',fromLink:true,net:nt});
+      if(nt)checkClosed(nt.gid);return}
+    show('vBad');setSub('');return}
+  if(S.pairs){renderPick();show('vPick');watchOpened()}else{renderSetup();show('vSetup')}
+}
+async function checkClosed(gid){
+  try{const n=await net();if(!n)return;
+    const s=await timeout(n.F.getDoc(n.F.doc(n.db,'groups',gid)),15000);
+    if((!s.exists()||s.data().closed)&&cur&&cur.net&&cur.net.gid===gid){cur=null;show('vClosed');setSub('')}
+  }catch(e){} // senza rete: la busta resta leggibile
+}
+
+$('addForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const v=$('nameIn').value.trim().replace(/\s+/g,' ');
+  if(!v){$('err').textContent='Scrivi un nome.';return}
+  if(S.people.some(p=>p.n.toLowerCase()===v.toLowerCase())){$('err').textContent='Questo nome c\'è già: aggiungi un cognome o un\'iniziale.';return}
+  $('err').textContent='';S.people.push({n:v,tel:false});$('nameIn').value='';save();renderSetup();$('nameIn').focus();
+});
+$('list').addEventListener('click',e=>{const b=e.target.closest('.x');if(!b)return;S.people.splice(+b.dataset.i,1);save();renderSetup()});
+$('list').addEventListener('change',e=>{const c=e.target.closest('[data-t]');if(!c)return;S.people[+c.dataset.t].tel=c.checked;save();renderSetup()});
+$('budgetIn').addEventListener('input',e=>{S.budget=e.target.value;save()});
+
+function rnd(n){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n}
+$('genBtn').addEventListener('click',async()=>{
+  // Mescola e chiude in un unico cerchio: nessuno pesca se stesso
+  const a=S.people.map(p=>p.n),L=a.length;
+  for(let i=L-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}
+  const b=(S.budget||'').trim(),nt=FIREBASE?{gid:hex(10),k:hex(12)}:null,pairs={};
+  // tok: segna l'apertura; th: conversazione anonima tra chi regala e chi riceve
+  a.forEach((g,i)=>pairs[g]={r:a[(i+1)%L],tok:hex(8),th:hex(10)});
+  a.forEach((g,i)=>{const p=pairs[g];p.in=pairs[a[(i-1+L)%L]].th;
+    p.code=encode(nt?{g,r:p.r,b,i:nt.gid,o:p.tok,s:p.th,d:p.in}:{g,r:p.r,b})});
+  $('genErr').textContent='';
+  if(nt){
+    const btn=$('genBtn');btn.disabled=true;btn.textContent='Collegamento…';
+    try{const n=await net();const w=n.F.writeBatch(n.db);
+      w.set(n.F.doc(n.db,'admins',nt.gid),{k:nt.k});
+      w.set(n.F.doc(n.db,'groups',nt.gid),{closed:false,at:n.F.serverTimestamp()});
+      await timeout(w.commit(),15000);
+    }catch(e){btn.textContent='Genera abbinamenti';btn.disabled=false;
+      $('genErr').textContent='Non riesco a collegarmi al servizio online. Controlla la connessione e riprova.';return}
+    btn.textContent='Genera abbinamenti';
+  }
+  S.pairs=pairs;S.net=nt;S.seen={};S.sent={};save();render();
+});
+
+$('links').addEventListener('click',async e=>{
+  const c=e.target.closest('[data-copy]'),w=e.target.closest('[data-wa]');
+  if(w){S.sent[S.people[+w.dataset.wa].n]=true;save();setTimeout(renderPick,300);return}
+  if(!c)return;const p=S.people[+c.dataset.copy];
+  try{await navigator.clipboard.writeText(msgFor(p));c.textContent='Copiato';S.sent[p.n]=true;save();setTimeout(renderPick,1200)}
+  catch(err){c.textContent='Tieni premuto il link sopra per copiarlo'}
+});
+
+/* ---- busta ---- */
+function openEnvelope(c){
+  cur=c;$('handTitle').textContent=`Busta per ${c.giver}`;
+  $('notMe').hidden=c.fromLink;
+  setSub(c.fromLink?`Ciao ${c.giver}, questa busta è solo per te.`:'');
+  $('envSvg').classList.remove('open');$('revealBtn').disabled=false;show('vHand');
+}
+function openLocal(p){
+  const q=S.pairs[p.n];
+  openEnvelope({giver:p.n,target:q.r,budget:(S.budget||'').trim(),fromLink:false,
+    net:S.net&&q.tok?{gid:S.net.gid,tok:q.tok,out:q.th,in:q.in}:null});
+}
+$('grid').addEventListener('click',e=>{
+  const b=e.target.closest('.who');if(!b)return;const p=S.people[+b.dataset.i];
+  if(isOpen(p)){cur={pending:p};$('reText').textContent=`${p.n} ha già aperto la sua busta. Sei proprio ${p.n}?`;$('reConfirm').hidden=false;$('reConfirm').scrollIntoView({block:'nearest'});return}
+  openLocal(p);
+});
+$('reNo').addEventListener('click',()=>{$('reConfirm').hidden=true});
+$('reYes').addEventListener('click',()=>{if(cur&&cur.pending)openLocal(cur.pending)});
+$('notMe').addEventListener('click',()=>{cur=null;render()});
+$('revealBtn').addEventListener('click',()=>{
+  $('revealBtn').disabled=true;$('envSvg').classList.add('open');
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  setTimeout(()=>{
+    if(!cur)return;
+    $('target').textContent=cur.target;
+    $('budgetOut').hidden=!cur.budget;$('budgetOut').textContent=cur.budget;
+    $('showHint').textContent=cur.fromLink?'Tienilo per te! Puoi riaprire questo link quando vuoi.':'Memorizzalo, poi nascondi e passa il telefono.';
+    if(!cur.fromLink){S.seen[cur.giver]=true;save()}
+    markOpened(cur);
+    show('vShow');openChat(cur);
+  },reduce?0:900);
+});
+$('hideBtn').addEventListener('click',()=>{
+  $('target').textContent='';
+  if(cur&&cur.fromLink){$('envSvg').classList.remove('open');$('revealBtn').disabled=false;show('vHand');return}
+  cur=null;render();
+});
+
+/* ---- messaggi anonimi ---- */
+let chatGen=0,chatUnsubs=[];
+function closeChat(){chatGen++;chatUnsubs.forEach(u=>u());chatUnsubs=[];$('vChat').hidden=true}
+function openChat(c){
+  if(!c.net||!FIREBASE)return;
+  $('vChat').hidden=false;$('toName').textContent=c.target;
+  $('chatHint').textContent=c.fromLink?'I messaggi arrivano in tempo reale. Riapri il link quando vuoi per leggere le risposte.'
+    :'Sei sul telefono di chi organizza: i messaggi li vede chiunque apra la tua busta qui.';
+  $('e-out').textContent=$('e-in').textContent='';
+  bindThread('out',c.net.gid,c.net.out,'g');bindThread('in',c.net.gid,c.net.in,'r');
+}
+async function bindThread(key,gid,tid,me){
+  const box=$('m-'+key),gen=chatGen;box.innerHTML='<p class="empty">Caricamento…</p>';
+  const empty=key==='out'?'Nessuna domanda ancora.':'Ancora nessun messaggio dal tuo Babbo Natale.';
+  try{
+    const n=await net();if(gen!==chatGen)return;
+    const q=n.F.query(n.F.collection(n.db,'groups',gid,'threads',tid,'msgs'),n.F.orderBy('at'));
+    const u=n.F.onSnapshot(q,s=>{
+      const ms=s.docs.map(d=>d.data({serverTimestamps:'estimate'}));
+      box.innerHTML=ms.length?ms.map(m=>`<div class="msg${m.f===me?' me':''}">${esc(m.t)}</div>`).join(''):`<p class="empty">${empty}</p>`;
+      box.scrollTop=box.scrollHeight;
+    },()=>{box.innerHTML='<p class="empty">Messaggi non disponibili.</p>'});
+    if(gen===chatGen)chatUnsubs.push(u);else u();
+  }catch(e){if(gen===chatGen)box.innerHTML='<p class="empty">Nessuna connessione.</p>'}
+}
+for(const key of ['out','in'])$('f-'+key).addEventListener('submit',async e=>{
+  e.preventDefault();const inp=$('i-'+key),t=inp.value.trim();
+  if(!t||!cur||!cur.net)return;
+  const tid=key==='out'?cur.net.out:cur.net.in,gid=cur.net.gid;
+  inp.value='';$('e-'+key).textContent='';
+  try{const n=await net();
+    await timeout(n.F.addDoc(n.F.collection(n.db,'groups',gid,'threads',tid,'msgs'),{f:key==='out'?'g':'r',t:t.slice(0,500),at:n.F.serverTimestamp()}),15000)}
+  catch(err){$('e-'+key).textContent=err.message==='timeout'?'Connessione lenta: il messaggio partirà appena torna la rete.':'Messaggio non inviato. Riprova.';if(err.message!=='timeout'&&!inp.value)inp.value=t}
+});
+
+/* ---- ricomincia ---- */
+$('resetBtn').addEventListener('click',()=>{
+  $('resetText').textContent=S.net?'Cancellare gli abbinamenti? I link già inviati smetteranno di funzionare e andranno rimandati.'
+    :'Cancellare gli abbinamenti? I link già inviati mostreranno ancora il vecchio abbinamento: avvisa tutti di usare solo il nuovo link.';
+  $('resetConfirm').hidden=false;$('resetConfirm').scrollIntoView({block:'nearest'})});
+$('resetNo').addEventListener('click',()=>{$('resetConfirm').hidden=true});
+$('resetYes').addEventListener('click',()=>{
+  if(S.net)S.toClose.push(S.net);
+  stopOpened();S.pairs=null;S.net=null;S.seen={};S.sent={};save();render();flushClose();
+});
+window.addEventListener('hashchange',render);
+
+render();
+if(!location.hash)flushClose();
+}
+</script>
+</body>
+</html>
