@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Babbo Natale Segreto</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#b3121f">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Babbo Segreto">
+<meta name="mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Yeseva+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
@@ -194,6 +200,14 @@ li .nm{flex:1;font-weight:600;overflow-wrap:anywhere}
   <section class="card center" id="vBad" hidden>
     <h2>Link non valido</h2>
     <p class="hint">Il link è incompleto o è stato copiato male. Chiedi a chi ha organizzato di rimandartelo.</p>
+  </section>
+
+  <!-- Installa come app (solo per chi organizza) -->
+  <section class="card" id="installCard" hidden>
+    <h2>Installa l'app</h2>
+    <p class="hint" style="margin-top:0">Mettila nella schermata Home: si apre come un'app e funziona anche senza rete.</p>
+    <p class="hint" id="iosHint" hidden>Su iPhone: tocca <b>Condividi</b> <span aria-hidden="true">⬆︎</span> in basso e poi <b>Aggiungi alla schermata Home</b>. L'app installata non vede i partecipanti salvati qui in Safari: preparali dall'app.</p>
+    <div class="row" style="margin-top:12px"><button class="ghost" id="installNo" style="flex:1">Non ora</button><button class="gold" id="installBtn" style="flex:1" hidden>Installa</button></div>
   </section>
 
   <!-- 6. Sorteggio annullato -->
@@ -557,7 +571,29 @@ $('resetYes').addEventListener('click',()=>{
 });
 window.addEventListener('hashchange',render);
 
-render();
+/* ---- app installabile (PWA) ---- */
+if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'))
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+let installEvt=null;
+const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const installDismissed=()=>{try{return !!localStorage.getItem('babbo-no-install')}catch(e){return false}};
+function updInstall(){
+  // Solo sulle schermate di chi organizza: chi apre un link non deve installare quella pagina
+  const can=installEvt||isIOS;
+  $('installCard').hidden=!!location.hash||standalone||!can||installDismissed();
+  $('installBtn').hidden=!installEvt;$('iosHint').hidden=!(isIOS&&!installEvt);
+}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;updInstall()});
+window.addEventListener('appinstalled',()=>{installEvt=null;updInstall()});
+window.addEventListener('hashchange',updInstall);
+$('installBtn').addEventListener('click',async()=>{
+  if(!installEvt)return;installEvt.prompt();
+  try{await installEvt.userChoice}catch(e){}installEvt=null;updInstall();
+});
+$('installNo').addEventListener('click',()=>{try{localStorage.setItem('babbo-no-install','1')}catch(e){}updInstall()});
+
+render();updInstall();
 if(!location.hash)flushClose();
 }
 </script>

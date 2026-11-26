@@ -1,0 +1,18 @@
+{
+  "id": "./",
+  "name": "Babbo Natale Segreto",
+  "short_name": "Babbo Segreto",
+  "description": "Organizza il Babbo Natale Segreto: sorteggio, buste e messaggi anonimi.",
+  "lang": "it",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#b3121f",
+  "theme_color": "#b3121f",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
