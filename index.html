@@ -207,6 +207,7 @@ li .nm{flex:1;font-weight:600;overflow-wrap:anywhere}
     <h2 id="installTitle">Installa l'app</h2>
     <p class="hint" style="margin-top:0" id="installText">Mettila nella schermata Home: si apre come un'app e funziona anche senza rete.</p>
     <p class="hint" id="iosHint" hidden>Su iPhone: tocca <b>Condividi</b> <span aria-hidden="true">⬆︎</span> in basso e poi <b>Aggiungi alla schermata Home</b>.<span id="iosOrg"> L'app installata non vede i partecipanti salvati qui in Safari: preparali dall'app.</span></p>
+    <p class="hint" id="andHint" hidden></p>
     <div class="row" style="margin-top:12px"><button class="ghost" id="installNo" style="flex:1">Non ora</button><button class="gold" id="installBtn" style="flex:1" hidden>Installa</button></div>
   </section>
 
@@ -576,6 +577,7 @@ if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostnam
   navigator.serviceWorker.register('sw.js').catch(()=>{});
 let installEvt=null;
 const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+const isAndroid=/android/i.test(navigator.userAgent);
 const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 const noKey=env=>env?'babbo-no-install-busta':'babbo-no-install';
 const installDismissed=env=>{try{return !!localStorage.getItem(noKey(env))}catch(e){return false}};
@@ -601,15 +603,23 @@ function updInstall(){
   const can=installEvt||isIOS,env=!!envCode();
   // Organizzatore: senza hash. Partecipante: solo sulla propria busta, non su link sbagliati o annullati
   const here=env?(!$('vHand').hidden||!$('vShow').hidden):!location.hash;
-  $('installCard').hidden=!here||standalone||!can||installDismissed(env);
+  // Aperta dentro un'app installata: su iPhone è per forza l'app della busta; su Android può essere l'app
+  // dell'organizzatore, che cattura i link, a meno che questa busta sia già stata installata
+  const bustaApp=env&&standalone&&(isIOS||(()=>{try{return !!localStorage.getItem('babbo-busta-app-'+envCode().slice(2,14))}catch(e){return false}})());
+  const inOrgApp=env&&standalone&&!bustaApp;
+  const show=here&&!installDismissed(env)&&(inOrgApp||(!standalone&&(can||(env&&isAndroid))));
+  $('installCard').hidden=!show;
+  $('andHint').hidden=!(inOrgApp||(env&&isAndroid&&!installEvt));
+  $('andHint').innerHTML=inOrgApp?'Il link si è aperto nell’app di chi organizza. Per avere la busta come app a parte, tocca il menu <b>⋮</b> e scegli <b>Apri in Chrome</b>, poi installala da lì.'
+    :'Tocca il menu <b>⋮</b> di Chrome e scegli <b>Installa app</b> o <b>Aggiungi a schermata Home</b>. Se il link si è aperto dentro WhatsApp, prima tocca <b>⋮</b> e scegli <b>Apri in Chrome</b>.';
   $('installTitle').textContent=env?'Tieni la busta sul telefono':'Installa l\'app';
   $('installText').textContent=env?'Mettila nella schermata Home: la riapri con un tocco, anche senza rete, e trovi lì i messaggi anonimi.'
     :'Mettila nella schermata Home: si apre come un\'app e funziona anche senza rete.';
   $('iosOrg').hidden=env;
-  $('installBtn').hidden=!installEvt;$('iosHint').hidden=!(isIOS&&!installEvt);
+  $('installBtn').hidden=!installEvt||inOrgApp;$('iosHint').hidden=!(isIOS&&!installEvt)||standalone;
 }
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;updInstall()});
-window.addEventListener('appinstalled',()=>{installEvt=null;updInstall()});
+window.addEventListener('appinstalled',()=>{const c=envCode();if(c)try{localStorage.setItem('babbo-busta-app-'+c.slice(2,14),'1')}catch(e){}installEvt=null;updInstall()});
 window.addEventListener('hashchange',()=>{setManifest();updInstall()});
 $('installBtn').addEventListener('click',async()=>{
   if(!installEvt)return;installEvt.prompt();
